@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,43 +18,59 @@ func main() {
 	// create a scanner to read the file
 	scanner := bufio.NewScanner(file)
 
-	var curr int
-	maxes := []int{0, 0, 0}
-
-	for scanner.Scan() {
-		currLine := scanner.Text()
-		// check if we reached the end of the block
-		if currLine == "" {
-			if curr > maxes[0] {
-				maxes[2] = maxes[1]
-				maxes[1] = maxes[0]
-				maxes[0] = curr
-			}
-			// reset curr
-			curr = 0
-			// move on to the next line
-			continue
-		}
-		// if we get here then we're within a block still
-		currNum, err := strconv.Atoi(currLine)
-		if err != nil {
-			panic(err)
-		}
-		curr += currNum
-	}
-
-	// handle the last block
-	if curr > maxes[0] {
-		maxes[2] = maxes[1]
-		maxes[1] = maxes[0]
-		maxes[0] = curr
+	nLargest, err := findNLargest(scanner, 3)
+	if err != nil {
+		panic(err)
 	}
 
 	var total int
 
-	for _, inidvMax := range maxes {
-		total += inidvMax
+	for _, inidvLargest := range nLargest {
+		total += inidvLargest
 	}
 
 	fmt.Print(total)
+}
+
+func findNLargest(scanner *bufio.Scanner, n int) ([]int, error) {
+	var curr int
+	nLargest := make([]int, n)
+	for scanner.Scan() {
+		currLine := scanner.Text()
+		if currLine == "" {
+			if curr > nLargest[0] {
+				updateNLargest(&nLargest, 0, curr)
+			}
+			curr = 0
+			continue
+		}
+		currNum, err := strconv.Atoi(currLine)
+		if err != nil {
+			return nil, err
+		}
+		curr += currNum
+	}
+
+	if curr > nLargest[0] {
+		updateNLargest(&nLargest, 0, curr)
+	}
+
+	return nLargest, nil
+
+}
+
+func updateNLargest(nLargest *[]int, index int, newVal int) error {
+	if index == len(*nLargest) {
+		return nil
+	}
+	if index < 0 {
+		return errors.New("index must be greater than 0")
+	}
+	if index > len(*nLargest) {
+		return errors.New("index must be less thatn length of m")
+	}
+	nextVal := (*nLargest)[index]
+	(*nLargest)[index] = newVal
+	updateNLargest(nLargest, index+1, nextVal)
+	return nil
 }
