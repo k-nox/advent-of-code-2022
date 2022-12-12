@@ -3,13 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/k-nox/advent-of-code-2022/day10/parttwo"
+	"github.com/k-nox/advent-of-code-2022/day11/partone"
 	"os"
 )
 
 func main() {
-	scanner := getScanner("10", false)
-	result := parttwo.Run(scanner)
+	scanner := getScanner("11", false)
+	result := partone.Run(scanner)
 	fmt.Println(result)
 }
 
